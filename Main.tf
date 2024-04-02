@@ -1,3 +1,6 @@
+# main.tf
+ 
+# Configuration du provider Azure
 terraform {
   required_providers {
     azurerm = {
@@ -7,44 +10,46 @@ terraform {
   }
   required_version = ">= 0.14.9"
 }
-
 provider "azurerm" {
   features {}
 }
-
-resource "random_integer" "random_suffix" {
-  min     = 1000
-  max     = 9999
-  # Vous pouvez ajuster min et max selon vos besoins pour générer des nombres uniques.
-  # Par exemple, pour garantir une unicité dans un contexte plus large, vous pourriez vouloir utiliser un nombre plus grand.
+# Ajouter la documentation pour la ressource random_integer
+# Documentation de la ressource random_integer : https://github.com/hashicorp/terraform-provider-random/blob/main/docs/resources/integer.md
+ 
+# Génération d'un nombre aléatoire
+resource "random_integer" "random_num" {
+  min = 1000
+  max = 9999
 }
-
-resource "azurerm_resource_group" "example" {
-  name     = "rg-{remplacez_par_votre_nom}-${random_integer.random_suffix.result}"
-  location = "West Europe"
+ 
+# Création du groupe de ressources
+resource "azurerm_resource_group" "my_resource_group" {
+  name     = "rg-cheung-${random_integer.random_num.result}"
+  location = "francecentral" # Remplacez par votre région Azure préférée
 }
-
-resource "azurerm_app_service_plan" "example" {
-  name                = "app-service-plan-{remplacez_par_votre_nom}-${random_integer.random_suffix.result}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  kind                = "Linux"
-  reserved            = true
-
+ 
+# Création du plan App Service
+resource "azurerm_app_service_plan" "my_app_service_plan" {
+  name                = "asp-cheung-${random_integer.random_num.result}"
+  location            = azurerm_resource_group.my_resource_group.location
+  resource_group_name = azurerm_resource_group.my_resource_group.name
+ 
   sku {
     tier = "Basic"
     size = "B1"
   }
 }
-
-resource "azurerm_linux_web_app" "example" {
-  name                = "web-app-{remplacez_par_votre_nom}-${random_integer.random_suffix.result}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  app_service_plan_id = azurerm_app_service_plan.example.id
-
+ 
+# Création de l'application web
+resource "azurerm_app_service" "my_web_app" {
+  name                = "rg-cheung-${random_integer.random_num.result}"
+  location            = azurerm_resource_group.my_resource_group.location
+  resource_group_name = azurerm_resource_group.my_resource_group.name
+  app_service_plan_id = azurerm_app_service_plan.my_app_service_plan.id
+ 
   site_config {
-    java_version      = "1.8"
-    linux_fx_version  = "JAVA|8-jre8"
+    java_version = "1.8"
+    java_container = "JAVA"
+  
   }
 }
